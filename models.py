@@ -13,6 +13,10 @@ session = Session()
 # Define Base
 Base = declarative_base()
 
+# Function to create tables if they do not exist
+def create_tables_if_not_exist():
+    Base.metadata.create_all(engine)
+
 # Location Model
 class Location(Base):
     __tablename__ = 'locations'
@@ -91,18 +95,22 @@ class WeatherRecord(Base):
             return True
         return False
 
-# Create database tables
-Base.metadata.create_all(engine)
+# Create tables if they do not exist
+create_tables_if_not_exist()
 
-# Add sample data if running as main script
-if __name__ == "__main__":
-    print("Creating tables and inserting sample data...")
-    
+# Function to display weather records
+def display_weather_records():
+    records = WeatherRecord.get_all_weather_records()
+    for record in records:
+        print(f"Location ID: {record.location_id}, Temperature: {record.temperature}, Humidity: {record.humidity}, Wind Speed: {record.wind_speed}, Date: {record.date}")
+
+# Function to add sample data
+def add_sample_data():
     # Add sample locations
     location1 = Location.add_location(city="Nairobi", country="Kenya")
     location2 = Location.add_location(city="New York", country="USA")
     location3 = Location.add_location(city="Tokyo", country="Japan")
-    
+
     print(f"Added Locations: {location1}, {location2}, {location3}")
 
     # Add sample weather records
@@ -112,5 +120,11 @@ if __name__ == "__main__":
         WeatherRecord.add_weather_record(location_id=location2.id, temperature=18.2, humidity=55.5, wind_speed=8.7)
     if location3:
         WeatherRecord.add_weather_record(location_id=location3.id, temperature=22.1, humidity=70.0, wind_speed=10.2)
-    
+
     print("Sample data added successfully!")
+
+# Add sample data if running as main script
+if __name__ == "__main__":
+    print("Ensuring tables exist...")
+    create_tables_if_not_exist()
+    add_sample_data()
